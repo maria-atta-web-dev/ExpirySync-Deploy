@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpirySync - Smart Inventory Expiry Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dsa.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .landing-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0077C8, #00A7A7);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .landing-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+        }
+        
+        .landing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .landing-header {
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-large {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-large h1 {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+        
+        .hero-section {
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+        
+        .btn-hero {
+            padding: 18px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-hero-primary {
+            background: white;
+            color: var(--primary);
+            border: none;
+        }
+        
+        .btn-hero-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .features-section {
+            background: white;
+            color: var(--text);
+            padding: 100px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        .section-title p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border: 1px solid #eee;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .dsa-section {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: white;
+            padding: 100px 0;
+        }
+        
+        .dsa-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .dsa-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .dsa-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+        
+        .dsa-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .complexity-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .badge-O1 { background: #10b981; }
+        .badge-Ologn { background: #f59e0b; }
+        .badge-On { background: #ef4444; }
+        
+        .demo-section {
+            background: white;
+            padding: 100px 0;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .demo-content h3 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+        
+        .demo-content p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .demo-visual {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .demo-visual h4 {
+            margin-bottom: 30px;
+            color: var(--text);
+        }
+        
+        .stack-demo-small {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .stack-item-small {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 15px 20px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 119, 200, 0.15);
+        }
+        
+        .stack-item-small:first-child {
+            border-color: var(--accent);
+            background: #e8f5e9;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .cta-section h2 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+        
+        .cta-section p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .footer {
+            background: #1a202c;
+            color: #a0aec0;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links h4 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #2d3748;
+            color: #718096;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div class="landing-page">
+        <div class="landing-container">
+            <!-- Header -->
+            <header class="landing-header">
+                <div class="logo-large">
+                    <i class="fas fa-shield-alt fa-2x"></i>
+                    <h1>ExpirySync</h1>
+                </div>
+                <div>
+                    <a href="login.html" class="btn btn-hero btn-hero-secondary">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </a>
+                </div>
+            </header>
+
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <h1 class="hero-title">Smart Inventory Expiry Management</h1>
+                <p class="hero-subtitle">
+                    A complete DSA-powered system demonstrating Stack, Queue, Priority Queue, 
+                    and Sorting Algorithms in real-world inventory management.
+                </p>
+                
+                <div class="hero-buttons">
+                    <a href="login.html" class="btn btn-hero btn-hero-primary">
+                        <i class="fas fa-rocket"></i> Launch Dashboard
+                    </a>
+                    <a href="#dsa-demo" class="btn btn-hero btn-hero-secondary">
+                        <i class="fas fa-project-diagram"></i> View DSA Demos
+                    </a>
+                    <a href="#features" class="btn btn-hero btn-hero-secondary">
+                        <i class="fas fa-star"></i> Explore Features
+                    </a>
+                </div>
+                
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <p style="opacity: 0.8; font-size: 1.1rem;">
+                        <i class="fas fa-lightbulb"></i> 
+                        <strong>Educational Project:</strong> Perfect for learning Data Structures & Algorithms 
+                        through practical inventory management implementation
+                    </p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="landing-container">
+            <div class="section-title">
+                <h2>Powerful Features</h2>
+                <p>Complete inventory management system with DSA visualizations</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <h3>Inventory Management</h3>
+                    <p>Add, edit, delete, and track products with expiry dates, quantities, and categories. Full CRUD operations with local storage.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Smart Alerts</h3>
+                    <p>Priority-based alert system using min-heap. Get notifications for expiring products, low stock, and urgent items.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>DSA Visualizations</h3>
+                    <p>Interactive demonstrations of Stack, Queue, Priority Queue, Sorting and Searching algorithms with real-time visualizations.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Dashboard Analytics</h3>
+                    <p>Comprehensive dashboard with charts, statistics, and insights about your inventory status and expiry trends.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI Assistant</h3>
+                    <p>Chatbot that explains DSA concepts and answers inventory queries. Ask about expiring products or data structures.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Local Storage</h3>
+                    <p>No database required! Everything runs in your browser with localStorage. Perfect for demonstrations and learning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DSA Section -->
+    <section class="dsa-section" id="dsa-demo">
+        <div class="landing-container">
+            <div class="section-title">
+                <h2>Data Structures & Algorithms</h2>
+                <p>Real-world implementation of core DSA concepts</p>
+            </div>
+            
+            <div class="dsa-cards">
+                <div class="dsa-card">
+                    <h4><i class="fas fa-layer-group"></i> Stack (LIFO)</h4>
+                    <p>Used for recent product additions. Last product added is first to be viewed.</p>
+                    <div class="complexity-badge badge-O1">O(1) Operations</div>
+                </div>
+                
+                <div class="dsa-card">
+                    <h4><i class="fas fa-stream"></i> Queue (FIFO)</h4>
+                    <p>Processes expired products in order. First expired, first processed.</p>
+                    <div class="complexity-badge badge-O1">O(1) Operations</div>
+                </div>
+                
+                <div class="dsa-card">
+                    <h4><i class="fas fa-sort-amount-up"></i> Priority Queue</h4>
+                    <p>Min-heap for urgent alerts. Lower priority number = higher urgency.</p>
+                    <div class="complexity-badge badge-Ologn">O(log n) Operations</div>
+                </div>
+                
+                <div class="dsa-card">
+                    <h4><i class="fas fa-sort"></i> Sorting Algorithms</h4>
+                    <p>Quick Sort, Merge Sort, Bubble Sort demonstrated with product data.</p>
+                    <div class="complexity-badge badge-Ologn">O(n log n)</div>
+                </div>
+                
+                <div class="dsa-card">
+                    <h4><i class="fas fa-search"></i> Searching Algorithms</h4>
+                    <p>Linear Search and Binary Search implemented for product lookup.</p>
+                    <div class="complexity-badge badge-On">O(n) Linear</div>
+                </div>
+                
+                <div class="dsa-card">
+                    <h4><i class="fas fa-code"></i> Java Backend</h4>
+                    <p>Complete Java implementations of all DSA structures for learning.</p>
+                    <div class="complexity-badge badge-O1">Ready to Run</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section class="demo-section">
+        <div class="demo-container">
+            <div class="demo-grid">
+                <div class="demo-content">
+                    <h3>Interactive Learning Experience</h3>
+                    <p>
+                        ExpirySync isn't just another inventory system. It's an educational platform 
+                        that demonstrates how Data Structures and Algorithms work in real applications.
+                    </p>
+                    <p>
+                        Every action you take—adding a product, viewing alerts, sorting inventory—triggers 
+                        specific DSA operations. You can see exactly which data structure is being used 
+                        and understand its time complexity.
+                    </p>
+                    <a href="dsa-demo.html" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
+                        <i class="fas fa-play-circle"></i> Launch DSA Demo
+                    </a>
+                </div>
+                
+                <div class="demo-visual">
+                    <h4>Stack Visualization Demo</h4>
+                    <div class="stack-demo-small">
+                        <div class="stack-item-small">
+                            <strong>Most Recent</strong><br>
+                            <small>Added just now</small>
+                        </div>
+                        <div class="stack-item-small">
+                            <strong>Yesterday's Addition</strong><br>
+                            <small>Added 1 day ago</small>
+                        </div>
+                        <div class="stack-item-small">
+                            <strong>Older Product</strong><br>
+                            <small>Added 3 days ago</small>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Stack follows LIFO (Last In, First Out)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="landing-container">
+            <h2>Ready to Explore DSA in Action?</h2>
+            <p>
+                No setup required. No database needed. Everything runs in your browser 
+                with complete Java backend code for reference.
+            </p>
+            
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <a href="login.html" class="btn btn-hero btn-hero-primary" style="background: white; color: var(--primary);">
+                    <i class="fas fa-rocket"></i> Start Using ExpirySync
+                </a>
+                <a href="dsa-demo.html" class="btn btn-hero btn-hero-secondary" style="border-color: white;">
+                    <i class="fas fa-project-diagram"></i> Interactive DSA Demos
+                </a>
+            </div>
+            
+            <div style="margin-top: 40px; background: rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 12px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <h4 style="margin-bottom: 15px;">
+                    <i class="fas fa-graduation-cap"></i> Perfect for Students & Developers
+                </h4>
+                <p style="margin: 0; opacity: 0.9;">
+                    • Learn DSA concepts through practical implementation<br>
+                    • See real Java code for Stack, Queue, Priority Queue<br>
+                    • Understand time complexity in real scenarios<br>
+                    • No installation or configuration required
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <div class="footer-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3 style="color: white; margin: 0;">ExpirySync</h3>
+                </div>
+                <p style="line-height: 1.6;">
+                    A complete educational project demonstrating Data Structures & Algorithms 
+                    through practical inventory management implementation.
+                </p>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                    <li><a href="dsa-demo.html">DSA Demo</a></li>
+                    <li><a href="chatbot.html">AI Assistant</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>DSA Structures</h4>
+                <ul>
+                    <li><a href="dsa-demo.html#stack-demo">Stack Operations</a></li>
+                    <li><a href="dsa-demo.html#queue-demo">Queue Operations</a></li>
+                    <li><a href="dsa-demo.html#priority-demo">Priority Queue</a></li>
+                    <li><a href="dsa-demo.html#sort-demo">Sorting Algorithms</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#" onclick="showJavaCode()">Java Backend Code</a></li>
+                    <li><a href="#" onclick="showTimeComplexity()">Time Complexity Guide</a></li>
+                    <li><a href="#" onclick="showDSAOverview()">DSA Overview</a></li>
+                    <li><a href="#" onclick="showProjectInfo()">Project Information</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2024 ExpirySync - DSA Educational Project. All code provided for learning purposes.</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">
+                <i class="fas fa-code"></i> Built with HTML, CSS, JavaScript & Java | 
+                <i class="fas fa-database"></i> Uses LocalStorage | 
+                <i class="fas fa-graduation-cap"></i> Educational Purpose
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Show Java code modal
+        function showJavaCode() {
+            const code = `// Example: InventoryStack.java
+public class InventoryStack {
+    private Stack<Product> productStack = new Stack<>();
+    
+    public void addProduct(Product product) {
+        productStack.push(product); // O(1)
+        System.out.println("Pushed: " + product.getName());
+    }
+    
+    public Product getRecentProduct() {
+        return productStack.peek(); // O(1)
+    }
+}`;
+            
+            alert(`Java Backend Code Example:\n\n${code}\n\nFull Java files are in the backend/ directory.`);
+        }
+        
+        function showTimeComplexity() {
+            const info = `Time Complexity Guide:
+            
+Stack Operations:
+• push() - O(1)
+• pop() - O(1)
+• peek() - O(1)
+
+Queue Operations:
+• enqueue() - O(1)
+• dequeue() - O(1)
+• peek() - O(1)
+
+Priority Queue (Min-Heap):
+• insert() - O(log n)
+• remove() - O(log n)
+• peek() - O(1)
+
+Sorting Algorithms:
+• Quick Sort - O(n log n) avg
+• Merge Sort - O(n log n)
+• Bubble Sort - O(n²)
+
+Searching Algorithms:
+• Linear Search - O(n)
+• Binary Search - O(log n)`;
+            
+            alert(info);
+        }
+        
+        function showDSAOverview() {
+            const overview = `Data Structures & Algorithms in ExpirySync:
+
+1. STACK (LIFO)
+   • Used for recent product additions
+   • Operations: push(), pop(), peek()
+   • Real use: "Recent Products" section
+
+2. QUEUE (FIFO)
+   • Used for expiry date processing
+   • Operations: enqueue(), dequeue(), peek()
+   • Real use: "Process Expired" feature
+
+3. PRIORITY QUEUE (Min-Heap)
+   • Used for urgent alerts
+   • Operations: insert(), remove(), peek()
+   • Real use: "Most Urgent Product"
+
+4. SORTING ALGORITHMS
+   • Quick Sort, Merge Sort, Bubble Sort
+   • Used for sorting by expiry, priority, quantity
+   • Real use: Inventory sorting options
+
+5. SEARCHING ALGORITHMS
+   • Linear Search, Binary Search
+   • Used for product lookup
+   • Real use: Search functionality`;
+            
+            alert(overview);
+        }
+        
+        function showProjectInfo() {
+            const info = `ExpirySync - Project Information
+
+🎯 Purpose:
+Educational project to demonstrate Data Structures & Algorithms
+through practical inventory management implementation.
+
+📁 Project Structure:
+expirysync-project/
+├── frontend/           # HTML, CSS, JavaScript
+├── backend/           # Java DSA implementations
+└── README.md         # Documentation
+
+🚀 Features:
+• Complete inventory management
+• DSA visualizations
+• Local storage (no database needed)
+• Interactive learning
+• Java backend code
+
+🎓 Learning Outcomes:
+• Understand DSA in real applications
+• See time complexity in action
+• Learn full-stack development concepts
+• Practice with complete working code
+
+⚡ Quick Start:
+1. Open frontend/login.html in browser
+2. Login with any credentials
+3. Explore all features
+4. Check DSA Demo page for visualizations`;
+            
+            alert(info);
+        }
+        
+        // Add scroll animation for features
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe feature cards
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+            
+            // Observe DSA cards
+            document.querySelectorAll('.dsa-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+        });
+        
+        // Animate stack items
+        function animateStackItems() {
+            const items = document.querySelectorAll('.stack-item-small');
+            items.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.2}s`;
+                item.classList.add('animated');
+            });
+        }
+        
+        // Start animation when in view
+        const stackObserver = new IntersectionObserver(function(entries) {
+            if (entries[0].isIntersecting) {
+                animateStackItems();
+            }
+        });
+        
+        const stackDemo = document.querySelector('.stack-demo-small');
+        if (stackDemo) {
+            stackObserver.observe(stackDemo);
+        }
+        
+        // Add animation styles
+        const animationStyles = document.createElement('style');
+        animationStyles.textContent = `
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .stack-item-small.animated {
+                animation: slideUp 0.5s ease forwards;
+            }
+            
+            .feature-card, .dsa-card {
+                animation: slideUp 0.5s ease forwards;
+            }
+        `;
+        document.head.appendChild(animationStyles);
+    </script>
+</body>
+</html>

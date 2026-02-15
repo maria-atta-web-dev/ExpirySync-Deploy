@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpirySync - Alerts & Notifications</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dsa.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .alert-category {
+            margin-bottom: 30px;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+        
+        .category-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-count {
+            background: var(--danger);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .alerts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .alert-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .alert-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        
+        .alert-card.expired { border-left-color: var(--danger); }
+        .alert-card.expiring { border-left-color: var(--warning); }
+        .alert-card.low-stock { border-left-color: var(--info); }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-details {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .alert-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .empty-alerts {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-alerts i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        
+        .priority-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .priority-0 { background: var(--danger); }
+        .priority-1 { background: #fd7e14; }
+        .priority-2 { background: var(--warning); }
+        .priority-3 { background: var(--info); }
+        .priority-4 { background: var(--success); }
+        
+        .filter-controls {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .queue-visualization {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .queue-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        @media (max-width: 768px) {
+            .alert-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .alert-actions {
+                align-self: flex-end;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-shield-alt"></i> ExpirySync</h1>
+                <small class="text-muted">Alerts Center</small>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <i class="fas fa-boxes"></i> <span>Inventory</span>
+                </a>
+                <a href="add-product.html" class="nav-item">
+                    <i class="fas fa-plus-circle"></i> <span>Add Product</span>
+                </a>
+                <a href="alerts.html" class="nav-item active">
+                    <i class="fas fa-bell"></i> <span>Alerts</span>
+                    <span class="notification-badge" id="sidebar-alert-count">0</span>
+                </a>
+                <a href="dsa-demo.html" class="nav-item">
+                    <i class="fas fa-project-diagram"></i> <span>DSA Demo</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h2>Alerts & Notifications</h2>
+                    <p class="lead">Priority-based alerts using DSA structures</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="refreshAlerts()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-danger" onclick="markAllAsResolved()">
+                        <i class="fas fa-check-double"></i> Mark All Resolved
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filter Controls -->
+            <div class="filter-controls">
+                <h5><i class="fas fa-filter"></i> Filter Alerts</h5>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Priority:</label>
+                        <select id="filter-priority" class="form-control form-control-sm" onchange="filterAlerts()">
+                            <option value="">All Priorities</option>
+                            <option value="0">Priority 0 (Expired)</option>
+                            <option value="1">Priority 1 (Critical)</option>
+                            <option value="2">Priority 2 (High)</option>
+                            <option value="3">Priority 3 (Medium)</option>
+                            <option value="4">Priority 4 (Low)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Type:</label>
+                        <select id="filter-type" class="form-control form-control-sm" onchange="filterAlerts()">
+                            <option value="">All Types</option>
+                            <option value="expired">Expired Products</option>
+                            <option value="expiring">Expiring Soon</option>
+                            <option value="low-stock">Low Stock</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Category:</label>
+                        <select id="filter-category" class="form-control form-control-sm" onchange="filterAlerts()">
+                            <option value="">All Categories</option>
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group ml-auto">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="show-resolved" 
+                                   onchange="filterAlerts()">
+                            <label class="form-check-label" for="show-resolved">Show Resolved</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expired Products Alerts -->
+            <div class="alert-category">
+                <div class="category-header" style="border-bottom-color: var(--danger);">
+                    <h3 style="color: var(--danger);">
+                        <i class="fas fa-times-circle"></i> Expired Products
+                        <span class="priority-indicator priority-0"></span>
+                    </h3>
+                    <span class="alert-count" id="expired-count">0</span>
+                </div>
+                
+                <div class="alerts-container" id="expired-alerts">
+                    <div class="empty-alerts">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No expired products found</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expiring Soon Alerts -->
+            <div class="alert-category">
+                <div class="category-header" style="border-bottom-color: var(--warning);">
+                    <h3 style="color: var(--warning);">
+                        <i class="fas fa-clock"></i> Expiring Soon (≤7 days)
+                        <span class="priority-indicator priority-1"></span>
+                        <span class="priority-indicator priority-2"></span>
+                    </h3>
+                    <span class="alert-count" id="expiring-count">0</span>
+                </div>
+                
+                <div class="alerts-container" id="expiring-alerts">
+                    <div class="empty-alerts">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No products expiring soon</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Stock Alerts -->
+            <div class="alert-category">
+                <div class="category-header" style="border-bottom-color: var(--info);">
+                    <h3 style="color: var(--info);">
+                        <i class="fas fa-exclamation-triangle"></i> Low Stock Alerts
+                        <span class="priority-indicator priority-3"></span>
+                    </h3>
+                    <span class="alert-count" id="low-stock-count">0</span>
+                </div>
+                
+                <div class="alerts-container" id="low-stock-alerts">
+                    <div class="empty-alerts">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No low stock alerts</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue Visualization -->
+            <div class="queue-visualization">
+                <div class="queue-title">
+                    <i class="fas fa-stream"></i>
+                    <h4>Alert Processing Queue (FIFO)</h4>
+                </div>
+                <p>Alerts are processed in First-In-First-Out order based on their priority:</p>
+                
+                <div class="queue-container" id="queue-visual">
+                    <div class="empty-alerts">
+                        <i class="fas fa-inbox"></i>
+                        <p>Queue visualization will appear here</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-outline-primary" onclick="processNextAlert()">
+                        <i class="fas fa-forward"></i> Process Next Alert (Dequeue)
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" onclick="simulateQueueProcessing()">
+                        <i class="fas fa-play"></i> Simulate Queue Processing
+                    </button>
+                </div>
+            </div>
+
+            <!-- Priority Queue Info -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-sort-amount-up"></i> Priority Queue Operations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>How Priority Queue Works:</h6>
+                            <p>Alerts are stored in a min-heap (priority queue) where:</p>
+                            <ul>
+                                <li><strong>Priority 0:</strong> Expired products (highest priority)</li>
+                                <li><strong>Priority 1:</strong> Expiring in ≤3 days</li>
+                                <li><strong>Priority 2:</strong> Expiring in 4-7 days</li>
+                                <li><strong>Priority 3:</strong> Low stock (quantity &lt; 10)</li>
+                                <li><strong>Priority 4:</strong> Other alerts</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Time Complexities:</h6>
+                            <table class="complexity-table">
+                                <tr>
+                                    <td>Insert Alert</td>
+                                    <td><span class="badge badge-Ologn">O(log n)</span></td>
+                                    <td>Add to priority queue</td>
+                                </tr>
+                                <tr>
+                                    <td>Get Highest Priority</td>
+                                    <td><span class="badge badge-O1">O(1)</span></td>
+                                    <td>Peek at root of heap</td>
+                                </tr>
+                                <tr>
+                                    <td>Process Alert</td>
+                                    <td><span class="badge badge-Ologn">O(log n)</span></td>
+                                    <td>Remove and heapify</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/api-simulator.js"></script>
+    <script>
+        let allAlerts = [];
+        let filteredAlerts = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAlerts();
+            populateCategoryFilter();
+            updateQueueVisualization();
+            
+            // Auto-refresh alerts every 30 seconds
+            setInterval(loadAlerts, 30000);
+        });
+        
+        function loadAlerts() {
+            const products = storage.getProducts();
+            const today = new Date();
+            
+            // Clear existing alerts
+            allAlerts = [];
+            
+            // Find expired products (priority 0)
+            const expiredProducts = products.filter(p => {
+                const expiry = new Date(p.expiryDate);
+                return expiry < today;
+            });
+            
+            expiredProducts.forEach(product => {
+                allAlerts.push({
+                    id: product.id,
+                    type: 'expired',
+                    priority: 0,
+                    title: `${product.productName} has expired`,
+                    details: `Category: ${product.category} | Expired on: ${new Date(product.expiryDate).toLocaleDateString()}`,
+                    product: product,
+                    timestamp: new Date().toISOString(),
+                    resolved: false
+                });
+            });
+            
+            // Find expiring soon (priority 1-2)
+            const expiringProducts = products.filter(p => {
+                const expiry = new Date(p.expiryDate);
+                const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                return daysUntilExpiry > 0 && daysUntilExpiry <= 7;
+            });
+            
+            expiringProducts.forEach(product => {
+                const expiry = new Date(product.expiryDate);
+                const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                const priority = daysUntilExpiry <= 3 ? 1 : 2;
+                
+                allAlerts.push({
+                    id: product.id,
+                    type: 'expiring',
+                    priority: priority,
+                    title: `${product.productName} expiring in ${daysUntilExpiry} days`,
+                    details: `Category: ${product.category} | Expiry: ${expiry.toLocaleDateString()} | Priority: ${priority}`,
+                    product: product,
+                    timestamp: new Date().toISOString(),
+                    resolved: false
+                });
+            });
+            
+            // Find low stock (priority 3)
+            const lowStockProducts = products.filter(p => p.quantity < 10);
+            
+            lowStockProducts.forEach(product => {
+                allAlerts.push({
+                    id: product.id,
+                    type: 'low-stock',
+                    priority: 3,
+                    title: `${product.productName} is low in stock`,
+                    details: `Category: ${product.category} | Current stock: ${product.quantity} units`,
+                    product: product,
+                    timestamp: new Date().toISOString(),
+                    resolved: false
+                });
+            });
+            
+            // Sort alerts by priority (ascending)
+            allAlerts.sort((a, b) => a.priority - b.priority);
+            
+            // Update counts
+            updateAlertCounts();
+            
+            // Filter and display alerts
+            filterAlerts();
+            
+            // Update sidebar badge
+            updateSidebarBadge();
+        }
+        
+        function filterAlerts() {
+            const priorityFilter = document.getElementById('filter-priority').value;
+            const typeFilter = document.getElementById('filter-type').value;
+            const categoryFilter = document.getElementById('filter-category').value;
+            const showResolved = document.getElementById('show-resolved').checked;
+            
+            filteredAlerts = allAlerts.filter(alert => {
+                // Filter by priority
+                if (priorityFilter !== '' && alert.priority !== parseInt(priorityFilter)) {
+                    return false;
+                }
+                
+                // Filter by type
+                if (typeFilter !== '' && alert.type !== typeFilter) {
+                    return false;
+                }
+                
+                // Filter by category
+                if (categoryFilter !== '' && alert.product.category !== categoryFilter) {
+                    return false;
+                }
+                
+                // Filter by resolved status
+                if (!showResolved && alert.resolved) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Display filtered alerts
+            displayAlerts();
+            
+            // Update queue visualization
+            updateQueueVisualization();
+        }
+        
+        function displayAlerts() {
+            // Clear all alert containers
+            document.getElementById('expired-alerts').innerHTML = '';
+            document.getElementById('expiring-alerts').innerHTML = '';
+            document.getElementById('low-stock-alerts').innerHTML = '';
+            
+            if (filteredAlerts.length === 0) {
+                const emptyHTML = `
+                    <div class="empty-alerts">
+                        <i class="fas fa-search"></i>
+                        <p>No alerts match your filters</p>
+                    </div>
+                `;
+                
+                document.getElementById('expired-alerts').innerHTML = emptyHTML;
+                document.getElementById('expiring-alerts').innerHTML = emptyHTML;
+                document.getElementById('low-stock-alerts').innerHTML = emptyHTML;
+                return;
+            }
+            
+            // Group alerts by type
+            const expiredAlerts = filteredAlerts.filter(a => a.type === 'expired');
+            const expiringAlerts = filteredAlerts.filter(a => a.type === 'expiring');
+            const lowStockAlerts = filteredAlerts.filter(a => a.type === 'low-stock');
+            
+            // Display expired alerts
+            displayAlertGroup('expired-alerts', expiredAlerts);
+            
+            // Display expiring alerts
+            displayAlertGroup('expiring-alerts', expiringAlerts);
+            
+            // Display low stock alerts
+            displayAlertGroup('low-stock-alerts', lowStockAlerts);
+        }
+        
+        function displayAlertGroup(containerId, alerts) {
+            const container = document.getElementById(containerId);
+            
+            if (alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-alerts">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No alerts in this category</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = alerts.map(alert => `
+                <div class="alert-card ${alert.type} ${alert.resolved ? 'resolved' : ''}" 
+                     style="opacity: ${alert.resolved ? '0.7' : '1'};">
+                    <div class="alert-content">
+                        <div class="alert-title">
+                            ${alert.resolved ? '<i class="fas fa-check-circle text-success"></i>' : ''}
+                            ${alert.title}
+                            <span class="priority-indicator priority-${alert.priority}"></span>
+                        </div>
+                        <div class="alert-details">${alert.details}</div>
+                        <div class="alert-meta">
+                            <span><i class="far fa-clock"></i> ${new Date(alert.timestamp).toLocaleTimeString()}</span>
+                            <span><i class="fas fa-tag"></i> ${alert.product.category}</span>
+                            <span><i class="fas fa-box"></i> Stock: ${alert.product.quantity}</span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        ${!alert.resolved ? `
+                            <button class="btn btn-sm btn-success" onclick="markAsResolved('${alert.id}')">
+                                <i class="fas fa-check"></i> Resolve
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="applyDiscount('${alert.id}')">
+                                <i class="fas fa-percentage"></i> Discount
+                            </button>
+                        ` : `
+                            <span class="badge badge-success">Resolved</span>
+                        `}
+                        <button class="btn btn-sm btn-info" onclick="viewProduct('${alert.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+        
+        function updateAlertCounts() {
+            const expiredCount = allAlerts.filter(a => a.type === 'expired' && !a.resolved).length;
+            const expiringCount = allAlerts.filter(a => a.type === 'expiring' && !a.resolved).length;
+            const lowStockCount = allAlerts.filter(a => a.type === 'low-stock' && !a.resolved).length;
+            
+            document.getElementById('expired-count').textContent = expiredCount;
+            document.getElementById('expiring-count').textContent = expiringCount;
+            document.getElementById('low-stock-count').textContent = lowStockCount;
+        }
+        
+        function updateSidebarBadge() {
+            const totalUnresolved = allAlerts.filter(a => !a.resolved).length;
+            const badge = document.getElementById('sidebar-alert-count');
+            badge.textContent = totalUnresolved > 99 ? '99+' : totalUnresolved;
+            badge.style.display = totalUnresolved > 0 ? 'flex' : 'none';
+        }
+        
+        function populateCategoryFilter() {
+            const products = storage.getProducts();
+            const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+            const select = document.getElementById('filter-category');
+            
+            // Clear existing options except "All Categories"
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add category options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                select.appendChild(option);
+            });
+        }
+        
+        function updateQueueVisualization() {
+            const queueContainer = document.getElementById('queue-visual');
+            const alertsToShow = filteredAlerts.slice(0, 5); // Show first 5 alerts
+            
+            if (alertsToShow.length === 0) {
+                queueContainer.innerHTML = `
+                    <div class="empty-alerts">
+                        <i class="fas fa-inbox"></i>
+                        <p>No alerts in queue</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = alertsToShow.map((alert, index) => `
+                <div class="queue-item" style="--delay: ${index * 0.1}s">
+                    <div class="queue-item-content">
+                        <div class="queue-priority priority-${alert.priority}">P${alert.priority}</div>
+                        <div class="queue-details">
+                            <div class="queue-name">${alert.title}</div>
+                            <div class="queue-time">${new Date(alert.timestamp).toLocaleTimeString()}</div>
+                        </div>
+                        <div class="queue-status ${alert.resolved ? 'resolved' : 'pending'}">
+                            ${alert.resolved ? '✓' : '⏳'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            queueContainer.innerHTML = html;
+        }
+        
+        // Alert Actions
+        function markAsResolved(alertId) {
+            const alertIndex = allAlerts.findIndex(a => a.id === alertId);
+            if (alertIndex !== -1) {
+                allAlerts[alertIndex].resolved = true;
+                
+                // Log DSA operation
+                storage.logDSAOperation('QUEUE', 'DEQUEUE', 
+                    `Alert resolved for product: ${allAlerts[alertIndex].product.productName}`);
+                
+                showSuccess('Alert marked as resolved');
+                filterAlerts();
+                updateAlertCounts();
+                updateSidebarBadge();
+                updateQueueVisualization();
+            }
+        }
+        
+        function markAllAsResolved() {
+            if (allAlerts.length === 0) {
+                showInfo('No alerts to resolve');
+                return;
+            }
+            
+            if (confirm(`Mark all ${allAlerts.length} alerts as resolved?`)) {
+                allAlerts.forEach(alert => {
+                    alert.resolved = true;
+                });
+                
+                // Log DSA operation
+                storage.logDSAOperation('QUEUE', 'BULK_DEQUEUE', 
+                    `All ${allAlerts.length} alerts marked as resolved`);
+                
+                showSuccess(`All ${allAlerts.length} alerts resolved`);
+                filterAlerts();
+                updateAlertCounts();
+                updateSidebarBadge();
+                updateQueueVisualization();
+            }
+        }
+        
+        function applyDiscount(alertId) {
+            const alert = allAlerts.find(a => a.id === alertId);
+            if (!alert) return;
+            
+            const product = alert.product;
+            const daysUntilExpiry = calculateDaysUntilExpiry(product.expiryDate);
+            const discount = getDiscountPercentage(daysUntilExpiry);
+            
+            // Simulate backend discount operation
+            dsaSimulator.simulateOperation('QUEUE_DEQUEUE', product);
+            
+            showSuccess(`Applied ${discount}% discount to ${product.productName}`);
+            markAsResolved(alertId);
+        }
+        
+        function viewProduct(productId) {
+            window.location.href = `inventory.html#product-${productId}`;
+        }
+        
+        function processNextAlert() {
+            const unresolvedAlerts = allAlerts.filter(a => !a.resolved);
+            if (unresolvedAlerts.length === 0) {
+                showInfo('No alerts to process');
+                return;
+            }
+            
+            // Get highest priority alert (lowest priority number)
+            const nextAlert = unresolvedAlerts.reduce((highest, alert) => 
+                alert.priority < highest.priority ? alert : highest, unresolvedAlerts[0]);
+            
+            // Simulate queue processing
+            dsaSimulator.simulateOperation('QUEUE_DEQUEUE', nextAlert.product);
+            
+            // Mark as resolved
+            markAsResolved(nextAlert.id);
+            
+            showSuccess(`Processed alert: ${nextAlert.title}`);
+        }
+        
+        function simulateQueueProcessing() {
+            // Simulate processing 3 alerts
+            const unresolvedAlerts = allAlerts.filter(a => !a.resolved);
+            const alertsToProcess = unresolvedAlerts.slice(0, 3);
+            
+            if (alertsToProcess.length === 0) {
+                showInfo('No alerts to process');
+                return;
+            }
+            
+            let delay = 0;
+            alertsToProcess.forEach((alert, index) => {
+                setTimeout(() => {
+                    dsaSimulator.simulateOperation('QUEUE_DEQUEUE', alert.product);
+                    markAsResolved(alert.id);
+                    
+                    if (index === alertsToProcess.length - 1) {
+                        showSuccess(`Processed ${alertsToProcess.length} alerts from queue`);
+                    }
+                }, delay);
+                delay += 1000;
+            });
+        }
+        
+        function refreshAlerts() {
+            loadAlerts();
+            showSuccess('Alerts refreshed');
+        }
+        
+        // Utility functions
+        function calculateDaysUntilExpiry(expiryDate) {
+            const today = new Date();
+            const expiry = new Date(expiryDate);
+            return Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+        }
+        
+        function getDiscountPercentage(daysUntilExpiry) {
+            if (daysUntilExpiry < 0) return 50;
+            if (daysUntilExpiry <= 3) return 40;
+            if (daysUntilExpiry <= 7) return 30;
+            if (daysUntilExpiry <= 14) return 20;
+            return 10;
+        }
+        
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+        
+        function showInfo(message) {
+            showNotification(message, 'info');
+        }
+        
+        function showNotification(message, type) {
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+            const color = type === 'success' ? '#155724' : '#0c5460';
+            const bgColor = type === 'success' ? '#d4edda' : '#d1ecf1';
+            
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${bgColor};
+                color: ${color};
+                padding: 15px 20px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Add queue styles
+        const queueStyles = document.createElement('style');
+        queueStyles.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            
+            .queue-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            .queue-item {
+                background: white;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                padding: 15px;
+                animation: queueSlide 0.3s ease-out;
+                animation-delay: var(--delay, 0s);
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            @keyframes queueSlide {
+                from {
+                    transform: translateX(20px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            .queue-item-content {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                flex: 1;
+            }
+            
+            .queue-priority {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                color: white;
+            }
+            
+            .queue-details {
+                flex: 1;
+            }
+            
+            .queue-name {
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
+            
+            .queue-time {
+                font-size: 0.8rem;
+                color: #666;
+            }
+            
+            .queue-status {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+            }
+            
+            .queue-status.pending {
+                background: #fff3cd;
+                color: #856404;
+            }
+            
+            .queue-status.resolved {
+                background: #d4edda;
+                color: #155724;
+            }
+        `;
+        document.head.appendChild(queueStyles);
+    </script>
+</body>
+</html>

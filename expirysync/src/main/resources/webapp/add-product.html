@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpirySync - Add Product</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dsa.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            color: var(--text);
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        
+        .col-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0 15px;
+        }
+        
+        .col-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding: 0 15px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .dsa-info {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .dsa-info h5 {
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dsa-operations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .dsa-operation {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .dsa-operation i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .dsa-operation span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .col-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .dsa-operations {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-shield-alt"></i> ExpirySync</h1>
+                <small class="text-muted">Add New Product</small>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <i class="fas fa-boxes"></i> <span>Inventory</span>
+                </a>
+                <a href="add-product.html" class="nav-item active">
+                    <i class="fas fa-plus-circle"></i> <span>Add Product</span>
+                </a>
+                <a href="alerts.html" class="nav-item">
+                    <i class="fas fa-bell"></i> <span>Alerts</span>
+                </a>
+                <a href="dsa-demo.html" class="nav-item">
+                    <i class="fas fa-project-diagram"></i> <span>DSA Demo</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h2>Add New Product</h2>
+                <div class="header-actions">
+                    <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+            </header>
+
+            <div class="form-container">
+                <!-- Product Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Product Information</h3>
+                    </div>
+                    
+                    <form id="product-form">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="product-name">Product Name *</label>
+                                    <input type="text" id="product-name" class="form-control" required 
+                                           placeholder="Enter product name">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="product-category">Category *</label>
+                                    <select id="product-category" class="form-control" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Dairy">Dairy</option>
+                                        <option value="Bakery">Bakery</option>
+                                        <option value="Beverages">Beverages</option>
+                                        <option value="Fruits">Fruits</option>
+                                        <option value="Vegetables">Vegetables</option>
+                                        <option value="Meat">Meat</option>
+                                        <option value="Canned Food">Canned Food</option>
+                                        <option value="Snacks">Snacks</option>
+                                        <option value="Cleaning">Cleaning Supplies</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="product-quantity">Quantity *</label>
+                                    <input type="number" id="product-quantity" class="form-control" 
+                                           min="1" max="1000" required placeholder="Enter quantity">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="product-price">Price per Unit ($)</label>
+                                    <input type="number" id="product-price" class="form-control" 
+                                           min="0" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="expiry-date">Expiry Date *</label>
+                                    <input type="date" id="expiry-date" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="supplier">Supplier</label>
+                                    <input type="text" id="supplier" class="form-control" 
+                                           placeholder="Enter supplier name">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="product-description">Description</label>
+                                    <textarea id="product-description" class="form-control" 
+                                              rows="3" placeholder="Enter product description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- DSA Operations Information -->
+                <div class="dsa-info">
+                    <h5><i class="fas fa-project-diagram"></i> DSA Operations That Will Execute</h5>
+                    <p>When you save this product, the following Data Structure operations will run:</p>
+                    
+                    <div class="dsa-operations">
+                        <div class="dsa-operation">
+                            <i class="fas fa-layer-group"></i>
+                            <span>STACK Push (O(1))</span>
+                            <small>Added to recent products</small>
+                        </div>
+                        <div class="dsa-operation">
+                            <i class="fas fa-stream"></i>
+                            <span>QUEUE Enqueue (O(1))</span>
+                            <small>Added to expiry queue</small>
+                        </div>
+                        <div class="dsa-operation">
+                            <i class="fas fa-sort-amount-up"></i>
+                            <span>PRIORITY QUEUE Insert (O(log n))</span>
+                            <small>Added with expiry priority</small>
+                        </div>
+                        <div class="dsa-operation">
+                            <i class="fas fa-sort"></i>
+                            <span>ARRAY Append (O(1))</span>
+                            <small>Added to main inventory</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-section">
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="saveProduct()">
+                            <i class="fas fa-save"></i> Save Product
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="saveAndAddAnother()">
+                            <i class="fas fa-plus-circle"></i> Save & Add Another
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Additions Preview -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-history"></i>
+                        <h3>Recent Additions (Stack Preview)</h3>
+                    </div>
+                    
+                    <div id="recent-additions">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No recent additions yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/api-simulator.js"></script>
+    <script>
+        // Set default expiry date to 30 days from now
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const nextMonth = new Date(today);
+            nextMonth.setDate(today.getDate() + 30);
+            
+            const formattedDate = nextMonth.toISOString().split('T')[0];
+            document.getElementById('expiry-date').value = formattedDate;
+            
+            // Set min date to today
+            document.getElementById('expiry-date').min = today.toISOString().split('T')[0];
+            
+            // Load recent additions
+            loadRecentAdditions();
+            
+            // Listen for storage events (in case other tabs update data)
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'expirysync_inventory') {
+                    console.log('Storage updated, refreshing recent additions...');
+                    loadRecentAdditions();
+                }
+            });
+        });
+        
+        function saveProduct() {
+            if (!validateForm()) {
+                return;
+            }
+            
+            const productData = getFormData();
+            
+            // Show loading state
+            const saveBtn = document.querySelector('.btn-primary');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+            
+            // Save to local storage
+            const savedProduct = storage.addProduct(productData);
+            
+            // Notify dashboard to refresh
+            notifyDashboardRefresh();
+            
+            // Log DSA operation
+            storage.logDSAOperation('STACK', 'PUSH', `Added "${savedProduct.productName}" to inventory stack`);
+            
+            // Show success message
+            showSuccess(`Product "${savedProduct.productName}" added successfully!`);
+            
+            // Update recent additions
+            loadRecentAdditions();
+            
+            // Restore button state
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }, 1000);
+            
+            // Redirect to dashboard after delay
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        }
+        
+        function saveAndAddAnother() {
+            if (!validateForm()) {
+                return;
+            }
+            
+            const productData = getFormData();
+            
+            // Show loading state
+            const saveBtn = document.querySelector('.btn-success');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+            
+            // Save to local storage
+            const savedProduct = storage.addProduct(productData);
+            
+            // Notify dashboard to refresh
+            notifyDashboardRefresh();
+            
+            // Log DSA operation
+            storage.logDSAOperation('STACK', 'PUSH', `Added "${savedProduct.productName}" to inventory stack`);
+            
+            // Show success message
+            showSuccess(`Product "${savedProduct.productName}" added successfully! Adding another...`);
+            
+            // Update recent additions
+            loadRecentAdditions();
+            
+            // Reset form
+            resetForm();
+            
+            // Restore button state
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }, 1000);
+            
+            // Focus on product name
+            document.getElementById('product-name').focus();
+        }
+        
+        function validateForm() {
+            const requiredFields = ['product-name', 'product-category', 'product-quantity', 'expiry-date'];
+            
+            for (const fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    showError(`Please fill in ${field.previousElementSibling.textContent}`);
+                    field.focus();
+                    return false;
+                }
+            }
+            
+            // Validate quantity
+            const quantity = parseInt(document.getElementById('product-quantity').value);
+            if (quantity < 1 || quantity > 1000) {
+                showError('Quantity must be between 1 and 1000');
+                return false;
+            }
+            
+            // Validate expiry date
+            const expiryDate = new Date(document.getElementById('expiry-date').value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (expiryDate < today) {
+                if (!confirm('Expiry date is in the past. Do you want to continue?')) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function getFormData() {
+            const expiryDate = new Date(document.getElementById('expiry-date').value);
+            
+            return {
+                productName: document.getElementById('product-name').value.trim(),
+                category: document.getElementById('product-category').value,
+                quantity: parseInt(document.getElementById('product-quantity').value),
+                expiryDate: expiryDate.toISOString().split('T')[0],
+                price: parseFloat(document.getElementById('product-price').value) || 0,
+                supplier: document.getElementById('supplier').value.trim() || 'Unknown',
+                description: document.getElementById('product-description').value.trim()
+            };
+        }
+        
+        function resetForm() {
+            document.getElementById('product-form').reset();
+            
+            // Reset expiry date to 30 days from now
+            const today = new Date();
+            const nextMonth = new Date(today);
+            nextMonth.setDate(today.getDate() + 30);
+            document.getElementById('expiry-date').value = nextMonth.toISOString().split('T')[0];
+            
+            // Reset price to empty
+            document.getElementById('product-price').value = '';
+        }
+        
+        function loadRecentAdditions() {
+            const recentProducts = storage.getRecentAdditions(5);
+            const container = document.getElementById('recent-additions');
+            
+            if (recentProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No recent additions yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = `
+                <div class="stack-preview">
+                    ${recentProducts.map((product, index) => `
+                        <div class="stack-item" style="--delay: ${index * 0.1}s">
+                            <div class="item-content">
+                                <div class="item-name">${product.productName}</div>
+                                <div class="item-meta">
+                                    <span class="badge">${product.category}</span>
+                                    <span class="quantity">${product.quantity} units</span>
+                                </div>
+                                <div class="item-date">${new Date(product.addedDate).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <small class="text-muted mt-2 d-block">Most recent addition is at the top (Stack LIFO)</small>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function notifyDashboardRefresh() {
+            // Store timestamp to notify dashboard
+            localStorage.setItem('dashboard_last_refresh', Date.now().toString());
+            
+            // Dispatch storage event for cross-tab communication
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'expirysync_inventory',
+                newValue: JSON.stringify(storage.getProducts()),
+                oldValue: JSON.stringify(storage.getProducts()),
+                storageArea: localStorage
+            }));
+            
+            // Dispatch custom event
+            window.dispatchEvent(new CustomEvent('dashboard-refresh', {
+                detail: { 
+                    action: 'product_added',
+                    timestamp: new Date().toISOString()
+                }
+            }));
+            
+            console.log('Dashboard refresh notification sent');
+        }
+        
+        function showSuccess(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-success';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #d4edda;
+                color: #155724;
+                padding: 15px 20px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function showError(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-error';
+            notification.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #f8d7da;
+                color: #721c24;
+                padding: 15px 20px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            
+            .stack-preview {
+                display: flex;
+                flex-direction: column-reverse;
+                gap: 10px;
+                max-height: 300px;
+                overflow-y: auto;
+                padding: 10px;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                background: #f8f9fa;
+            }
+            
+            .stack-item {
+                background: white;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                padding: 15px;
+                animation: stackSlide 0.3s ease-out;
+                animation-delay: var(--delay, 0s);
+            }
+            
+            @keyframes stackSlide {
+                from {
+                    transform: translateY(-10px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            .item-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .item-name {
+                font-weight: 500;
+                flex: 1;
+            }
+            
+            .item-meta {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            
+            .item-meta .badge {
+                background: var(--primary);
+                color: white;
+                padding: 3px 8px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+            }
+            
+            .item-meta .quantity {
+                font-size: 0.9rem;
+                color: #666;
+            }
+            
+            .item-date {
+                font-size: 0.85rem;
+                color: #999;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

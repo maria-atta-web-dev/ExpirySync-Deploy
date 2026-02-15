@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpirySync - DSA Demo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dsa.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .demo-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .demo-section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+        }
+        
+        .section-title.stack { border-bottom-color: var(--primary); }
+        .section-title.queue { border-bottom-color: var(--success); }
+        .section-title.priority { border-bottom-color: var(--purple); }
+        .section-title.sort { border-bottom-color: var(--warning); }
+        .section-title.search { border-bottom-color: var(--secondary); }
+        
+        .section-title i {
+            font-size: 1.5rem;
+        }
+        
+        .complexity-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid;
+        }
+        
+        .complexity-card.stack { border-left-color: var(--primary); }
+        .complexity-card.queue { border-left-color: var(--success); }
+        .complexity-card.priority { border-left-color: var(--purple); }
+        
+        .complexity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .complexity-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .complexity-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-O1 { background: #d4edda; color: #155724; }
+        .badge-Ologn { background: #fff3cd; color: #856404; }
+        .badge-On { background: #f8d7da; color: #721c24; }
+        .badge-On2 { background: #d1ecf1; color: #0c5460; }
+        
+        .complexity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .complexity-table th,
+        .complexity-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .complexity-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .visualization-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .visualization-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .code-preview {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .operation-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .demo-explanation {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .real-time-log {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-shield-alt"></i> ExpirySync</h1>
+                <small class="text-muted">DSA Laboratory</small>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+                <a href="dsa-demo.html" class="nav-item active">
+                    <i class="fas fa-project-diagram"></i> <span>DSA Demo</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
+                <div class="nav-section">
+                    <h6>Jump to Section</h6>
+                    <a href="#stack-demo" class="nav-item sub">
+                        <i class="fas fa-layer-group"></i> <span>Stack Demo</span>
+                    </a>
+                    <a href="#queue-demo" class="nav-item sub">
+                        <i class="fas fa-stream"></i> <span>Queue Demo</span>
+                    </a>
+                    <a href="#priority-demo" class="nav-item sub">
+                        <i class="fas fa-sort-amount-up"></i> <span>Priority Queue</span>
+                    </a>
+                    <a href="#sort-demo" class="nav-item sub">
+                        <i class="fas fa-sort"></i> <span>Sorting Demo</span>
+                    </a>
+                    <a href="#search-demo" class="nav-item sub">
+                        <i class="fas fa-search"></i> <span>Searching Demo</span>
+                    </a>
+                </div>
+                
+                <div class="nav-divider"></div>
+                
+                <div class="nav-item">
+                    <small class="text-muted">Interactive Demos</small>
+                    <div class="dsa-badges">
+                        <span class="badge badge-stack">Live Stack</span>
+                        <span class="badge badge-queue">Live Queue</span>
+                        <span class="badge badge-priority">Live Heap</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="page-header">
+                <div>
+                    <h2>Data Structures & Algorithms Demo</h2>
+                    <p class="lead">Interactive visualization of DSA operations used in ExpirySync</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="runAllDemos()">
+                        <i class="fas fa-play"></i> Run All Demos
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="resetAllDemos()">
+                        <i class="fas fa-redo"></i> Reset All
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stack Demo -->
+            <section class="demo-section" id="stack-demo">
+                <div class="section-title stack">
+                    <i class="fas fa-layer-group" style="color: var(--primary);"></i>
+                    <h3>Stack Operations (LIFO)</h3>
+                    <span class="badge badge-stack">Last In, First Out</span>
+                </div>
+                
+                <div class="visualization-container">
+                    <div>
+                        <h5>Interactive Stack Visualization</h5>
+                        <div class="demo-visualization">
+                            <div class="stack-demo" id="stack-visual-demo">
+                                <div class="stack-base">BOTTOM OF STACK</div>
+                            </div>
+                            <div class="stack-controls">
+                                <button class="btn btn-primary" onclick="stackPush()">
+                                    <i class="fas fa-plus"></i> PUSH (Add Product)
+                                </button>
+                                <button class="btn btn-warning" onclick="stackPop()">
+                                    <i class="fas fa-minus"></i> POP (Remove Top)
+                                </button>
+                                <button class="btn btn-info" onclick="stackPeek()">
+                                    <i class="fas fa-eye"></i> PEEK (View Top)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="stack-log" id="stack-log">
+                            <div class="log-entry">
+                                <strong>Stack Status:</strong> Ready for operations
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5>Time Complexity Analysis</h5>
+                        <div class="complexity-card stack">
+                            <div class="complexity-header">
+                                <div class="complexity-title">Stack Operations</div>
+                                <span class="complexity-badge badge-O1">O(1) Average</span>
+                            </div>
+                            
+                            <table class="complexity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Operation</th>
+                                        <th>Time</th>
+                                        <th>Space</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Push</td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Add to top of stack</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pop</td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Remove from top</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Peek</td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>View top element</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Search</td>
+                                        <td><span class="badge badge-On">O(n)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Linear search required</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="demo-explanation">
+                            <h6>How Stack Works in ExpirySync:</h6>
+                            <p>When you add a product in the frontend, the backend Java code:</p>
+                            <ol>
+                                <li>Creates a Product object with all details</li>
+                                <li>Pushes it onto the InventoryStack (LIFO structure)</li>
+                                <li>Updates the product status based on expiry date</li>
+                                <li>Recent additions are always at the top of the stack</li>
+                            </ol>
+                            <p><strong>Real use:</strong> The "Recent Products" section uses stack operations.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Queue Demo -->
+            <section class="demo-section" id="queue-demo">
+                <div class="section-title queue">
+                    <i class="fas fa-stream" style="color: var(--success);"></i>
+                    <h3>Queue Operations (FIFO)</h3>
+                    <span class="badge badge-queue">First In, First Out</span>
+                </div>
+                
+                <div class="visualization-container">
+                    <div>
+                        <h5>Interactive Queue Visualization</h5>
+                        <div class="demo-visualization">
+                            <div class="queue-demo" id="queue-visual-demo">
+                                <div class="queue-label">FRONT →</div>
+                                <div class="queue-label">→ REAR</div>
+                            </div>
+                            <div class="queue-controls">
+                                <button class="btn btn-success" onclick="queueEnqueue()">
+                                    <i class="fas fa-plus"></i> ENQUEUE (Add to Queue)
+                                </button>
+                                <button class="btn btn-danger" onclick="queueDequeue()">
+                                    <i class="fas fa-minus"></i> DEQUEUE (Process Front)
+                                </button>
+                                <button class="btn btn-info" onclick="queuePeek()">
+                                    <i class="fas fa-eye"></i> PEEK (View Front)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="queue-log" id="queue-log">
+                            <div class="log-entry">
+                                <strong>Queue Status:</strong> Ready for operations
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5>Time Complexity Analysis</h5>
+                        <div class="complexity-card queue">
+                            <div class="complexity-header">
+                                <div class="complexity-title">Queue Operations</div>
+                                <span class="complexity-badge badge-O1">O(1) Average</span>
+                            </div>
+                            
+                            <table class="complexity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Operation</th>
+                                        <th>Time</th>
+                                        <th>Space</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Enqueue</td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Add to rear of queue</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dequeue</td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Remove from front</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Peek</td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>View front element</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Search</td>
+                                        <td><span class="badge badge-On">O(n)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Linear traversal</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="demo-explanation">
+                            <h6>How Queue Works in ExpirySync:</h6>
+                            <p>When processing expired products, the backend:</p>
+                            <ol>
+                                <li>Adds products to ExpiryQueue based on expiry date</li>
+                                <li>Processes them in FIFO order (oldest expiry first)</li>
+                                <li>Applies discounts based on how expired they are</li>
+                                <li>Removes processed products from the queue</li>
+                            </ol>
+                            <p><strong>Real use:</strong> The "Process Expired" button uses queue operations.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Priority Queue Demo -->
+            <section class="demo-section" id="priority-demo">
+                <div class="section-title priority">
+                    <i class="fas fa-sort-amount-up" style="color: var(--purple);"></i>
+                    <h3>Priority Queue (Min-Heap)</h3>
+                    <span class="badge badge-priority">Lowest Priority First</span>
+                </div>
+                
+                <div class="visualization-container">
+                    <div>
+                        <h5>Interactive Priority Queue Visualization</h5>
+                        <div class="demo-visualization">
+                            <div class="priority-demo" id="priority-visual-demo">
+                                <div class="empty-priority">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>Priority queue is empty</p>
+                                </div>
+                            </div>
+                            <div class="priority-controls">
+                                <button class="btn btn-purple" onclick="priorityInsert()" 
+                                        style="background: var(--purple); color: white;">
+                                    <i class="fas fa-plus"></i> INSERT (Add with Priority)
+                                </button>
+                                <button class="btn btn-warning" onclick="priorityRemove()">
+                                    <i class="fas fa-minus"></i> REMOVE (Highest Priority)
+                                </button>
+                                <button class="btn btn-info" onclick="priorityPeek()">
+                                    <i class="fas fa-eye"></i> PEEK (View Highest)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="priority-log" id="priority-log">
+                            <div class="log-entry">
+                                <strong>Priority Queue Status:</strong> Ready for operations
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5>Time Complexity Analysis</h5>
+                        <div class="complexity-card priority">
+                            <div class="complexity-header">
+                                <div class="complexity-title">Priority Queue Operations</div>
+                                <span class="complexity-badge badge-Ologn">O(log n) Average</span>
+                            </div>
+                            
+                            <table class="complexity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Operation</th>
+                                        <th>Time</th>
+                                        <th>Space</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Insert</td>
+                                        <td><span class="badge badge-Ologn">O(log n)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Add with priority (heapify up)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Remove</td>
+                                        <td><span class="badge badge-Ologn">O(log n)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Remove highest priority (heapify down)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Peek</td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>View highest priority</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Heapify</td>
+                                        <td><span class="badge badge-On">O(n)</span></td>
+                                        <td><span class="badge badge-O1">O(1)</span></td>
+                                        <td>Build heap from array</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="demo-explanation">
+                            <h6>How Priority Queue Works in ExpirySync:</h6>
+                            <p>For urgent product handling, the backend:</p>
+                            <ol>
+                                <li>Calculates priority based on days until expiry</li>
+                                <li>Inserts into min-heap (lower number = higher priority)</li>
+                                <li>Always processes product with highest priority (lowest number)</li>
+                                <li>Maintains heap property after each operation</li>
+                            </ol>
+                            <p><strong>Real use:</strong> The "Most Urgent Product" feature uses priority queue.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sorting Demo -->
+            <section class="demo-section" id="sort-demo">
+                <div class="section-title sort">
+                    <i class="fas fa-sort" style="color: var(--warning);"></i>
+                    <h3>Sorting Algorithms</h3>
+                    <span class="badge" style="background: #fff3cd; color: #856404;">Comparison Demo</span>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5>Quick Sort (Expiry Date)</h5>
+                                <span class="badge badge-Ologn">O(n log n) avg</span>
+                            </div>
+                            <div class="card-body">
+                                <p>Divide and conquer algorithm. Picks pivot, partitions array, recursively sorts.</p>
+                                <button class="btn btn-warning btn-sm" onclick="demoQuickSort()">
+                                    <i class="fas fa-play"></i> Demo Quick Sort
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5>Merge Sort (Priority)</h5>
+                                <span class="badge badge-Ologn">O(n log n)</span>
+                            </div>
+                            <div class="card-body">
+                                <p>Divide array, recursively sort halves, merge sorted halves.</p>
+                                <button class="btn btn-warning btn-sm" onclick="demoMergeSort()">
+                                    <i class="fas fa-play"></i> Demo Merge Sort
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5>Bubble Sort (Quantity)</h5>
+                                <span class="badge badge-On2">O(n²)</span>
+                            </div>
+                            <div class="card-body">
+                                <p>Repeatedly steps through list, compares adjacent elements.</p>
+                                <button class="btn btn-warning btn-sm" onclick="demoBubbleSort()">
+                                    <i class="fas fa-play"></i> Demo Bubble Sort
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5>Compare All Algorithms</h5>
+                                <span class="badge badge-info">Performance Test</span>
+                            </div>
+                            <div class="card-body">
+                                <p>Run all sorting algorithms and compare performance.</p>
+                                <button class="btn btn-info btn-sm" onclick="compareSortingAlgorithms()">
+                                    <i class="fas fa-chart-bar"></i> Compare Performance
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Searching Demo -->
+            <section class="demo-section" id="search-demo">
+                <div class="section-title search">
+                    <i class="fas fa-search" style="color: var(--secondary);"></i>
+                    <h3>Searching Algorithms</h3>
+                    <span class="badge" style="background: #d1ecf1; color: #0c5460;">Lookup Demo</span>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5>Linear Search (ID)</h5>
+                                <span class="badge badge-On">O(n)</span>
+                            </div>
+                            <div class="card-body">
+                                <p>Check each element sequentially until found.</p>
+                                <div class="input-group">
+                                    <input type="text" id="linear-search-input" class="form-control" 
+                                           placeholder="Enter product ID">
+                                    <button class="btn btn-secondary" onclick="demoLinearSearch()">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5>Binary Search (Name)</h5>
+                                <span class="badge badge-Ologn">O(log n)</span>
+                            </div>
+                            <div class="card-body">
+                                <p>Requires sorted array. Repeatedly divides search interval.</p>
+                                <div class="input-group">
+                                    <input type="text" id="binary-search-input" class="form-control" 
+                                           placeholder="Enter product name">
+                                    <button class="btn btn-secondary" onclick="demoBinarySearch()">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-explanation">
+                    <h6>Search Algorithm Comparison:</h6>
+                    <div class="table-responsive">
+                        <table class="complexity-table">
+                            <thead>
+                                <tr>
+                                    <th>Algorithm</th>
+                                    <th>Best Case</th>
+                                    <th>Average Case</th>
+                                    <th>Worst Case</th>
+                                    <th>Space</th>
+                                    <th>When to Use</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Linear Search</td>
+                                    <td>O(1)</td>
+                                    <td>O(n)</td>
+                                    <td>O(n)</td>
+                                    <td>O(1)</td>
+                                    <td>Small datasets, unsorted data</td>
+                                </tr>
+                                <tr>
+                                    <td>Binary Search</td>
+                                    <td>O(1)</td>
+                                    <td>O(log n)</td>
+                                    <td>O(log n)</td>
+                                    <td>O(1)</td>
+                                    <td>Large datasets, sorted data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real-time DSA Operations Log -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-history"></i> Real-time DSA Operations Log
+                    </h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearOperationsLog()">
+                        <i class="fas fa-trash"></i> Clear Log
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="real-time-log" id="real-time-log">
+                        <div class="log-entry stack">
+                            <div class="log-header">
+                                <span class="log-time">System Start</span>
+                                <span class="log-structure">DSA DEMO</span>
+                                <span class="log-operation">INITIALIZED</span>
+                            </div>
+                            <div class="log-description">
+                                DSA demonstration system ready for interactive operations
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/dsa-demo.js"></script>
+    <script>
+        // Initialize DSA demos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all demo components
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.initStackDemo();
+                dsaDemo.initQueueDemo();
+                dsaDemo.initPriorityDemo();
+            }
+            
+            // Start live updates for operations log
+            startLiveUpdates();
+        });
+        
+        // Stack operations
+        function stackPush() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.stackPush();
+            }
+        }
+        
+        function stackPop() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.stackPop();
+            }
+        }
+        
+        function stackPeek() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.stackPeek();
+            }
+        }
+        
+        // Queue operations
+        function queueEnqueue() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.queueEnqueue();
+            }
+        }
+        
+        function queueDequeue() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.queueDequeue();
+            }
+        }
+        
+        function queuePeek() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.queuePeek();
+            }
+        }
+        
+        // Priority Queue operations
+        function priorityInsert() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.priorityInsert();
+            }
+        }
+        
+        function priorityRemove() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.priorityRemove();
+            }
+        }
+        
+        function priorityPeek() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.priorityPeek();
+            }
+        }
+        
+        // Sorting demos
+        function demoQuickSort() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.demonstrateSorting();
+            }
+        }
+        
+        function demoMergeSort() {
+            alert("Merge Sort Demo: This would show how Merge Sort works with product priorities.");
+        }
+        
+        function demoBubbleSort() {
+            alert("Bubble Sort Demo: This would demonstrate Bubble Sort with product quantities.");
+        }
+        
+        function compareSortingAlgorithms() {
+            alert("Sorting Algorithm Comparison: This would run all sorting algorithms and compare their performance.");
+        }
+        
+        // Searching demos
+        function demoLinearSearch() {
+            const input = document.getElementById('linear-search-input');
+            if (input && input.value.trim()) {
+                if (typeof dsaDemo !== 'undefined') {
+                    dsaDemo.simulateLinearSearch(input.value);
+                }
+            } else {
+                alert("Please enter a product ID to search for.");
+            }
+        }
+        
+        function demoBinarySearch() {
+            const input = document.getElementById('binary-search-input');
+            if (input && input.value.trim()) {
+                if (typeof dsaDemo !== 'undefined') {
+                    dsaDemo.simulateBinarySearch(input.value);
+                }
+            } else {
+                alert("Please enter a product name to search for.");
+            }
+        }
+        
+        // Utility functions
+        function runAllDemos() {
+            // Run stack operations
+            stackPush();
+            setTimeout(() => stackPush(), 500);
+            setTimeout(() => stackPeek(), 1000);
+            setTimeout(() => stackPop(), 1500);
+            
+            // Run queue operations
+            setTimeout(() => queueEnqueue(), 2000);
+            setTimeout(() => queueEnqueue(), 2500);
+            setTimeout(() => queuePeek(), 3000);
+            setTimeout(() => queueDequeue(), 3500);
+            
+            // Run priority queue operations
+            setTimeout(() => priorityInsert(), 4000);
+            setTimeout(() => priorityInsert(), 4500);
+            setTimeout(() => priorityPeek(), 5000);
+            setTimeout(() => priorityRemove(), 5500);
+            
+            // Run sorting demo
+            setTimeout(() => demoQuickSort(), 6000);
+            
+            alert("Running all DSA demonstrations sequentially. Watch the operations log!");
+        }
+        
+        function resetAllDemos() {
+            if (confirm("Reset all DSA demonstrations? This will clear all visualizations.")) {
+                if (typeof dsaDemo !== 'undefined') {
+                    dsaDemo.clearOperationsLog();
+                    dsaDemo.initStackDemo();
+                    dsaDemo.initQueueDemo();
+                    dsaDemo.initPriorityDemo();
+                }
+                
+                const logContainer = document.getElementById('real-time-log');
+                if (logContainer) {
+                    logContainer.innerHTML = `
+                        <div class="log-entry stack">
+                            <div class="log-header">
+                                <span class="log-time">System Reset</span>
+                                <span class="log-structure">DSA DEMO</span>
+                                <span class="log-operation">RESET</span>
+                            </div>
+                            <div class="log-description">
+                                All DSA demonstrations have been reset to initial state
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        function clearOperationsLog() {
+            if (typeof dsaDemo !== 'undefined') {
+                dsaDemo.clearOperationsLog();
+            }
+        }
+        
+        function startLiveUpdates() {
+            // Update operations log from storage every 2 seconds
+            setInterval(() => {
+                const storedLog = JSON.parse(localStorage.getItem('dsa_demo_log') || '[]');
+                if (storedLog.length > 0) {
+                    // The dsaDemo class handles updating the log
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

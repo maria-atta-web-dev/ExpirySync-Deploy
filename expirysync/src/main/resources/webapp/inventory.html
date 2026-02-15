@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpirySync - Inventory Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dsa.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .search-filter-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            position: relative;
+            min-width: 250px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        
+        .search-box input {
+            padding-left: 45px;
+            width: 100%;
+        }
+        
+        .filter-dropdown {
+            min-width: 150px;
+        }
+        
+        .inventory-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-info h3 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--text);
+        }
+        
+        .stat-info p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .inventory-table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+            color: var(--text);
+            border-bottom: 2px solid #eee;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .product-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-expired { background: #fee; color: #c53030; }
+        .status-expiring { background: #fef3cd; color: #92400e; }
+        .status-healthy { background: #d1fae5; color: #065f46; }
+        .status-lowstock { background: #dbeafe; color: #1e40af; }
+        
+        .priority-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .priority-0 { background: #c53030; }
+        .priority-1 { background: #f97316; }
+        .priority-2 { background: #f59e0b; }
+        .priority-3 { background: #3b82f6; }
+        .priority-4 { background: #10b981; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-table {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .dsa-structure-info {
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .dsa-structure-info h4 {
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .inventory-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-filter-container {
+                flex-direction: column;
+            }
+            
+            .search-box, .filter-dropdown {
+                width: 100%;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-shield-alt"></i> ExpirySync</h1>
+                <small class="text-muted">Inventory Management</small>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+                <a href="inventory.html" class="nav-item active">
+                    <i class="fas fa-boxes"></i> <span>Inventory</span>
+                </a>
+                <a href="add-product.html" class="nav-item">
+                    <i class="fas fa-plus-circle"></i> <span>Add Product</span>
+                </a>
+                <a href="alerts.html" class="nav-item">
+                    <i class="fas fa-bell"></i> <span>Alerts</span>
+                </a>
+                <a href="chatbot.html" class="nav-item">
+                    <i class="fas fa-robot"></i> <span>AI Assistant</span>
+                </a>
+                <a href="dsa-demo.html" class="nav-item">
+                    <i class="fas fa-project-diagram"></i> <span>DSA Demo</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="page-header">
+                <h2>Inventory Management</h2>
+                <div class="header-actions">
+                    <a href="add-product.html" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Add Product
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="refreshInventory()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="inventory-stats">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--primary);">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-products">0</h3>
+                        <p>Total Products</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="expired-products">0</h3>
+                        <p>Expired Products</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--warning);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="expiring-products">0</h3>
+                        <p>Expiring Soon</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--info);">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="low-stock-products">0</h3>
+                        <p>Low Stock</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="inventory-header">
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" class="form-control" 
+                               placeholder="Search products..." onkeyup="searchProducts()">
+                    </div>
+                    
+                    <select id="category-filter" class="form-control filter-dropdown" onchange="filterProducts()">
+                        <option value="">All Categories</option>
+                        <!-- Categories will be populated by JavaScript -->
+                    </select>
+                    
+                    <select id="status-filter" class="form-control filter-dropdown" onchange="filterProducts()">
+                        <option value="">All Status</option>
+                        <option value="expired">Expired</option>
+                        <option value="expiring">Expiring Soon</option>
+                        <option value="healthy">Healthy</option>
+                        <option value="lowstock">Low Stock</option>
+                    </select>
+                    
+                    <select id="sort-by" class="form-control filter-dropdown" onchange="sortProducts()">
+                        <option value="name">Sort by: Name</option>
+                        <option value="expiry">Sort by: Expiry Date</option>
+                        <option value="quantity">Sort by: Quantity</option>
+                        <option value="priority">Sort by: Priority</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button class="btn btn-outline-primary" onclick="exportInventory()">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="inventory-table-container">
+                <div class="table-header">
+                    <h4 style="margin: 0;">Products</h4>
+                    <span class="text-muted" id="product-count">0 products found</span>
+                </div>
+                
+                <div id="inventory-table">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No products found. Add your first product!</p>
+                        <a href="add-product.html" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus-circle"></i> Add Product
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="changePage(-1)">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span class="page-info">Page 1 of 1</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="changePage(1)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- DSA Structure Info -->
+            <div class="dsa-structure-info">
+                <h4><i class="fas fa-project-diagram"></i> DSA Structures in Use</h4>
+                <p>This inventory page demonstrates:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-layer-group"></i> Array</strong>
+                        <small class="d-block">O(1) access to products by index</small>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-sort"></i> Sorting Algorithms</strong>
+                        <small class="d-block">O(n log n) for sorting by various fields</small>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-search"></i> Linear Search</strong>
+                        <small class="d-block">O(n) for searching products</small>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-filter"></i> Filtering</strong>
+                        <small class="d-block">O(n) for filtering by category/status</small>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/api-simulator.js"></script>
+    <script>
+        let allProducts = [];
+        let filteredProducts = [];
+        let currentPage = 1;
+        const pageSize = 10;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInventory();
+            populateCategoryFilter();
+            
+            // Set up auto-refresh every 60 seconds
+            setInterval(loadInventory, 60000);
+        });
+        
+        function loadInventory() {
+            allProducts = storage.getProducts();
+            filteredProducts = [...allProducts];
+            
+            updateStats();
+            displayProducts();
+            updatePagination();
+            
+            // Log DSA operation
+            storage.logDSAOperation('ARRAY', 'LOAD_ALL', 
+                `Loaded ${allProducts.length} products from storage`);
+        }
+        
+        function updateStats() {
+            const today = new Date();
+            const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+            const expired = allProducts.filter(p => {
+                const expiry = new Date(p.expiryDate);
+                return expiry < today;
+            }).length;
+            
+            const expiring = allProducts.filter(p => {
+                const expiry = new Date(p.expiryDate);
+                return expiry >= today && expiry <= nextWeek;
+            }).length;
+            
+            const lowStock = allProducts.filter(p => p.quantity < 10).length;
+            
+            document.getElementById('total-products').textContent = allProducts.length;
+            document.getElementById('expired-products').textContent = expired;
+            document.getElementById('expiring-products').textContent = expiring;
+            document.getElementById('low-stock-products').textContent = lowStock;
+        }
+        
+        function populateCategoryFilter() {
+            const categories = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
+            const select = document.getElementById('category-filter');
+            
+            // Clear existing options except "All Categories"
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add category options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                select.appendChild(option);
+            });
+        }
+        
+        function searchProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filteredProducts = [...allProducts];
+            } else {
+                // Linear search through products
+                const startTime = performance.now();
+                
+                filteredProducts = allProducts.filter(product => 
+                    product.productName.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm) ||
+                    product.supplier.toLowerCase().includes(searchTerm)
+                );
+                
+                const endTime = performance.now();
+                const searchTime = (endTime - startTime).toFixed(2);
+                
+                // Log DSA operation
+                storage.logDSAOperation('ARRAY', 'LINEAR_SEARCH', 
+                    `Searched ${allProducts.length} products in ${searchTime}ms`);
+            }
+            
+            currentPage = 1;
+            displayProducts();
+            updatePagination();
+        }
+        
+        function filterProducts() {
+            const category = document.getElementById('category-filter').value;
+            const status = document.getElementById('status-filter').value;
+            
+            filteredProducts = allProducts.filter(product => {
+                // Filter by category
+                if (category && product.category !== category) {
+                    return false;
+                }
+                
+                // Filter by status
+                if (status) {
+                    const today = new Date();
+                    const expiry = new Date(product.expiryDate);
+                    const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                    
+                    switch (status) {
+                        case 'expired':
+                            if (daysUntilExpiry >= 0) return false;
+                            break;
+                        case 'expiring':
+                            if (daysUntilExpiry < 0 || daysUntilExpiry > 7) return false;
+                            break;
+                        case 'healthy':
+                            if (daysUntilExpiry < 0 || product.quantity < 10) return false;
+                            break;
+                        case 'lowstock':
+                            if (product.quantity >= 10) return false;
+                            break;
+                    }
+                }
+                
+                return true;
+            });
+            
+            currentPage = 1;
+            displayProducts();
+            updatePagination();
+            
+            // Log DSA operation
+            storage.logDSAOperation('ARRAY', 'FILTER', 
+                `Filtered to ${filteredProducts.length} products`);
+        }
+        
+        function sortProducts() {
+            const sortBy = document.getElementById('sort-by').value;
+            
+            const startTime = performance.now();
+            
+            switch (sortBy) {
+                case 'name':
+                    // Quick sort by name (simulated)
+                    filteredProducts.sort((a, b) => 
+                        a.productName.localeCompare(b.productName));
+                    storage.logDSAOperation('ARRAY', 'QUICK_SORT', 'Sorted by name (Quick Sort)');
+                    break;
+                    
+                case 'expiry':
+                    // Merge sort by expiry date (simulated)
+                    filteredProducts.sort((a, b) => 
+                        new Date(a.expiryDate) - new Date(b.expiryDate));
+                    storage.logDSAOperation('ARRAY', 'MERGE_SORT', 'Sorted by expiry date (Merge Sort)');
+                    break;
+                    
+                case 'quantity':
+                    // Bubble sort by quantity (simulated)
+                    filteredProducts.sort((a, b) => a.quantity - b.quantity);
+                    storage.logDSAOperation('ARRAY', 'BUBBLE_SORT', 'Sorted by quantity (Bubble Sort)');
+                    break;
+                    
+                case 'priority':
+                    // Heap sort by priority (simulated)
+                    filteredProducts.sort((a, b) => a.priority - b.priority);
+                    storage.logDSAOperation('ARRAY', 'HEAP_SORT', 'Sorted by priority (Heap Sort)');
+                    break;
+            }
+            
+            const endTime = performance.now();
+            const sortTime = (endTime - startTime).toFixed(2);
+            
+            console.log(`Sorted ${filteredProducts.length} products by ${sortBy} in ${sortTime}ms`);
+            
+            displayProducts();
+        }
+        
+        function displayProducts() {
+            const container = document.getElementById('inventory-table');
+            
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>No products match your filters</p>
+                        <button class="btn btn-outline-primary mt-3" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, filteredProducts.length);
+            const pageProducts = filteredProducts.slice(startIndex, endIndex);
+            
+            // Generate table
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            pageProducts.forEach(product => {
+                const expiry = new Date(product.expiryDate);
+                const today = new Date();
+                const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                
+                let status = 'healthy';
+                let statusText = 'Healthy';
+                let statusClass = 'status-healthy';
+                
+                if (daysUntilExpiry < 0) {
+                    status = 'expired';
+                    statusText = 'Expired';
+                    statusClass = 'status-expired';
+                } else if (daysUntilExpiry <= 7) {
+                    status = 'expiring';
+                    statusText = 'Expiring Soon';
+                    statusClass = 'status-expiring';
+                }
+                
+                if (product.quantity < 10) {
+                    status = 'lowstock';
+                    statusText = 'Low Stock';
+                    statusClass = 'status-lowstock';
+                }
+                
+                html += `
+                    <tr id="product-${product.id}">
+                        <td>
+                            <div class="product-cell">
+                                <div class="product-icon">
+                                    <i class="fas fa-${getCategoryIcon(product.category)}"></i>
+                                </div>
+                                <div>
+                                    <strong>${product.productName}</strong><br>
+                                    <small class="text-muted">${product.supplier || 'No supplier'}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${product.category}</td>
+                        <td>${product.quantity} units</td>
+                        <td>${expiry.toLocaleDateString()}<br>
+                            <small class="text-muted">${daysUntilExpiry >= 0 ? `${daysUntilExpiry} days left` : 'Expired'}</small>
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="priority-indicator priority-${product.priority}"></span>
+                            ${product.priority}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewProduct('${product.id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${product.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" onclick="applyDiscount('${product.id}')">
+                                    <i class="fas fa-percentage"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+            document.getElementById('product-count').textContent = 
+                `${filteredProducts.length} products found (showing ${startIndex + 1}-${endIndex})`;
+        }
+        
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredProducts.length / pageSize);
+            
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+            
+            pagination.style.display = 'flex';
+            pagination.querySelector('.page-info').textContent = 
+                `Page ${currentPage} of ${totalPages}`;
+            
+            // Disable previous button on first page
+            const prevBtn = pagination.querySelector('button:first-child');
+            prevBtn.disabled = currentPage === 1;
+            
+            // Disable next button on last page
+            const nextBtn = pagination.querySelector('button:last-child');
+            nextBtn.disabled = currentPage === totalPages;
+        }
+        
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredProducts.length / pageSize);
+            currentPage += direction;
+            
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            displayProducts();
+            updatePagination();
+        }
+        
+        function getCategoryIcon(category) {
+            const icons = {
+                'Dairy': 'cheese',
+                'Bakery': 'bread-slice',
+                'Beverages': 'wine-bottle',
+                'Fruits': 'apple-alt',
+                'Vegetables': 'carrot',
+                'Meat': 'drumstick-bite',
+                'Canned Food': 'can',
+                'Snacks': 'cookie',
+                'Cleaning': 'soap',
+                'Other': 'box'
+            };
+            
+            return icons[category] || 'box';
+        }
+        
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('category-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            document.getElementById('sort-by').value = 'name';
+            
+            filteredProducts = [...allProducts];
+            currentPage = 1;
+            
+            displayProducts();
+            updatePagination();
+        }
+        
+        function refreshInventory() {
+            loadInventory();
+            showNotification('Inventory refreshed successfully', 'success');
+        }
+        
+        function exportInventory() {
+            const csvContent = convertToCSV(filteredProducts);
+            downloadCSV(csvContent, 'expirysync-inventory.csv');
+            
+            showNotification('Inventory exported as CSV', 'success');
+        }
+        
+        function convertToCSV(products) {
+            const headers = ['Product Name', 'Category', 'Quantity', 'Expiry Date', 
+                           'Price', 'Supplier', 'Priority', 'Status'];
+            
+            const rows = products.map(p => {
+                const expiry = new Date(p.expiryDate);
+                const today = new Date();
+                const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                
+                let status = 'Healthy';
+                if (daysUntilExpiry < 0) status = 'Expired';
+                else if (daysUntilExpiry <= 7) status = 'Expiring Soon';
+                if (p.quantity < 10) status = 'Low Stock';
+                
+                return [
+                    `"${p.productName}"`,
+                    p.category,
+                    p.quantity,
+                    expiry.toLocaleDateString(),
+                    p.price || 'N/A',
+                    p.supplier || 'N/A',
+                    p.priority,
+                    status
+                ].join(',');
+            });
+            
+            return [headers.join(','), ...rows].join('\n');
+        }
+        
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Product Actions
+        function viewProduct(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            showProductModal(product);
+        }
+        
+        function editProduct(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            // Store product in session for editing
+            sessionStorage.setItem('editProduct', JSON.stringify(product));
+            window.location.href = 'add-product.html?edit=true';
+        }
+        
+        function deleteProduct(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            if (confirm(`Are you sure you want to delete "${product.productName}"?`)) {
+                storage.deleteProduct(id);
+                
+                // Log DSA operation
+                storage.logDSAOperation('ARRAY', 'DELETE', 
+                    `Deleted product: ${product.productName}`);
+                
+                loadInventory();
+                showNotification('Product deleted successfully', 'success');
+            }
+        }
+        
+        function applyDiscount(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            const daysUntilExpiry = calculateDaysUntilExpiry(product.expiryDate);
+            const discount = getDiscountPercentage(daysUntilExpiry);
+            
+            // Simulate DSA operation
+            dsaSimulator.simulateOperation('QUEUE_DEQUEUE', product);
+            
+            showNotification(`Applied ${discount}% discount to ${product.productName}`, 'info');
+        }
+        
+        function showProductModal(product) {
+            const expiry = new Date(product.expiryDate);
+            const today = new Date();
+            const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+            
+            let status = 'Healthy';
+            let statusColor = '#10b981';
+            
+            if (daysUntilExpiry < 0) {
+                status = 'Expired';
+                statusColor = '#ef4444';
+            } else if (daysUntilExpiry <= 7) {
+                status = 'Expiring Soon';
+                statusColor = '#f59e0b';
+            }
+            
+            if (product.quantity < 10) {
+                status = 'Low Stock';
+                statusColor = '#3b82f6';
+            }
+            
+            const modalHTML = `
+                <div id="product-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                     background: rgba(0,0,0,0.5); display: flex; align-items: center; 
+                     justify-content: center; z-index: 1000;">
+                    <div style="background: white; border-radius: 12px; padding: 30px; 
+                         max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;">Product Details</h3>
+                            <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">
+                                &times;
+                            </button>
+                        </div>
+                        
+                        <div style="display: flex; gap: 20px; margin-bottom: 25px;">
+                            <div style="width: 80px; height: 80px; background: ${statusColor}; 
+                                 border-radius: 10px; display: flex; align-items: center; 
+                                 justify-content: center; color: white; font-size: 2rem;">
+                                <i class="fas fa-${getCategoryIcon(product.category)}"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 10px 0;">${product.productName}</h4>
+                                <span style="display: inline-block; padding: 5px 15px; 
+                                      background: ${statusColor}; color: white; 
+                                      border-radius: 20px; font-size: 0.9rem;">
+                                    ${status}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
+                            <div>
+                                <strong>Category</strong><br>
+                                ${product.category}
+                            </div>
+                            <div>
+                                <strong>Quantity</strong><br>
+                                ${product.quantity} units
+                            </div>
+                            <div>
+                                <strong>Expiry Date</strong><br>
+                                ${expiry.toLocaleDateString()}
+                            </div>
+                            <div>
+                                <strong>Days Left</strong><br>
+                                ${daysUntilExpiry >= 0 ? `${daysUntilExpiry} days` : 'Expired'}
+                            </div>
+                            <div>
+                                <strong>Price</strong><br>
+                                $${product.price || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>Priority</strong><br>
+                                <span style="color: ${statusColor}">${product.priority}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <strong>Supplier</strong><br>
+                            ${product.supplier || 'Not specified'}
+                        </div>
+                        
+                        ${product.description ? `
+                            <div style="margin-bottom: 25px;">
+                                <strong>Description</strong><br>
+                                ${product.description}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee; padding-top: 20px;">
+                            <button onclick="editProduct('${product.id}'); closeModal();" 
+                                    style="padding: 10px 20px; background: var(--warning); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button onclick="applyDiscount('${product.id}'); closeModal();" 
+                                    style="padding: 10px 20px; background: var(--info); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                <i class="fas fa-percentage"></i> Apply Discount
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('product-modal');
+            if (modal) modal.remove();
+        }
+        
+        function calculateDaysUntilExpiry(expiryDate) {
+            const today = new Date();
+            const expiry = new Date(expiryDate);
+            return Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+        }
+        
+        function getDiscountPercentage(daysUntilExpiry) {
+            if (daysUntilExpiry < 0) return 50;
+            if (daysUntilExpiry <= 3) return 40;
+            if (daysUntilExpiry <= 7) return 30;
+            if (daysUntilExpiry <= 14) return 20;
+            return 10;
+        }
+        
+        function showNotification(message, type) {
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+            const color = type === 'success' ? '#155724' : '#0c5460';
+            const bgColor = type === 'success' ? '#d4edda' : '#d1ecf1';
+            
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${bgColor};
+                color: ${color};
+                padding: 15px 20px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

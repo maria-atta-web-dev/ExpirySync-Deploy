@@ -1,0 +1,24 @@
+# 1. Navigate to your project
+cd C:\Users\DELL\Desktop\expirysync
+
+# 2. Clean
+mvn clean
+
+# 3. Compile
+mvn compile
+
+# 4. Run (USE THESE QUOTES IN POWERSHELL)
+mvn exec:java "-Dexec.mainClass=com.expirysync.Main"
+
+
+
+
+
+
+
+
+
+
+
+cd C:\Users\DELL\Desktop\expirysync
+mvn --% clean compile exec:java -Dexec.mainClass=com.expirysync.Main
